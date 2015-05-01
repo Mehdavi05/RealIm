@@ -60,6 +60,7 @@
 {
     NSLog(@"\nName is entered\n");
     ChatRoomViewController * vc = (ChatRoomViewController *)[self.storyboard instantiateViewControllerWithIdentifier:@"ChatRoomVC"];
+    vc.userName = userName;
     [self presentViewController:vc animated:YES completion:nil];
     
 }

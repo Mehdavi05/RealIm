@@ -24,6 +24,7 @@
 @synthesize tfEntry;
 @synthesize chatTable;
 @synthesize chatData;
+@synthesize userName;
 
 BOOL isShowingAlertView = NO;
 BOOL isFirstShown = YES;
@@ -49,8 +50,7 @@ BOOL isFirstShown = YES;
                                               otherButtonTitles:nil];
         [alert show];
     }
-    className = @"chatroom";
-    userName = @"Shujaat";
+    className = @"Mychatroom";
     chatData  = [[NSMutableArray alloc] init];
     [self loadLocalChat];
 }
@@ -88,7 +88,7 @@ BOOL isFirstShown = YES;
     if (tfEntry.text.length>0) {
         // updating the table immediately
         NSArray *keys = [NSArray arrayWithObjects:@"text", @"userName", @"date", nil];
-        NSArray *objects = [NSArray arrayWithObjects:tfEntry.text, userName, [NSDate date], nil];
+        NSArray *objects = [NSArray arrayWithObjects:tfEntry.text, self.userName, [NSDate date], nil];
         NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
         [chatData addObject:dictionary];
         
@@ -103,7 +103,7 @@ BOOL isFirstShown = YES;
         // going for the parsing
         PFObject *newMessage = [PFObject objectWithClassName:@"chatroom"];
         [newMessage setObject:tfEntry.text forKey:@"text"];
-        [newMessage setObject:userName forKey:@"userName"];
+        [newMessage setObject:self.userName forKey:@"userName"];
         [newMessage setObject:[NSDate date] forKey:@"date"];
         [newMessage saveInBackground];
         tfEntry.text = @"";
@@ -204,7 +204,8 @@ BOOL isFirstShown = YES;
         }];
     }
     __block int totalNumberOfEntries = 0;
-    //[query orderByAscending:@"createdAt"];
+    //App is crashing after this line
+    [query orderByAscending:@"createdAt"];
     [query countObjectsInBackgroundWithBlock:^(int number, NSError *error) {
         if (!error) {
             // The count request succeeded. Log the count
@@ -217,13 +218,13 @@ BOOL isFirstShown = YES;
                     theLimit = MAX_ENTRIES_LOADED;
                 }
                 else {
-                    theLimit = totalNumberOfEntries-[chatData count];
+                    theLimit = totalNumberOfEntries- (int)[chatData count];
                 }
-                query.limit = [NSNumber numberWithInt:theLimit];
+                query.limit = (int)[NSNumber numberWithInt:theLimit];
                 [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
                     if (!error) {
                         // The find succeeded.
-                        NSLog(@"Successfully retrieved %d chats.", objects.count);
+                        NSLog(@"Successfully retrieved %lu chats.", (unsigned long)objects.count);
                         [chatData addObjectsFromArray:objects];
                         NSMutableArray *insertIndexPaths = [[NSMutableArray alloc] init];
                         for (int ind = 0; ind < objects.count; ind++) {
@@ -244,7 +245,7 @@ BOOL isFirstShown = YES;
             
         } else {
             // The request failed, we'll keep the chatData count?
-            number = [chatData count];
+            number = (int)[chatData count];
         }
     }];
 }

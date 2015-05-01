@@ -23,6 +23,7 @@
 @property(nonatomic, strong)  UITextField *tfEntry;
 @property (nonatomic, retain) UITableView *chatTable;
 @property (nonatomic, retain) NSMutableArray *chatData;
+@property (atomic, retain)     NSString       *userName;
 
 -(void) registerForKeyboardNotifications;
 -(void) freeKeyboardNotifications;
